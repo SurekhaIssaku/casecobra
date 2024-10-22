@@ -5,6 +5,18 @@ import { db } from '@/db'
 import { stripe } from '@/lib/stripe'
 import { getKindeServerSession } from '@kinde-oss/kinde-auth-nextjs/server'
 import { Order } from '@prisma/client'
+import { headers } from 'next/headers'
+
+export const getAbsoluteURL = (domain: string, url: any): string => {
+  try {
+    const isLocalhost = domain?.indexOf("localhost") === 0;
+    const protocol = isLocalhost ? "http" : "https";
+    return `${protocol}://${domain}${url}`;
+  } catch (e) {
+    console.log(e);
+  }
+  return domain;
+};
 
 export const createCheckoutSession = async ({
   configId,
@@ -64,13 +76,15 @@ export const createCheckoutSession = async ({
       unit_amount: price,
     },
   })
-
+  const host = (await headers().get("host")) || "";
+  const domain = await getAbsoluteURL(host, "/");
+  console.log(domain)
   const stripeSession = await stripe.checkout.sessions.create({
-    success_url: `${process.env.NEXT_PUBLIC_SERVER_URL}/thank-you?orderId=${order.id}`,
-    cancel_url: `${process.env.NEXT_PUBLIC_SERVER_URL}/configure/preview?id=${configuration.id}`,
+    success_url: `${domain}success?orderId=${order.id}`,
+    cancel_url: `${domain}configure/preview?id=${configuration.id}`,
     payment_method_types: ['card'],
     mode: 'payment',
-    shipping_address_collection: { allowed_countries: ['DE', 'US'] },
+    shipping_address_collection: { allowed_countries: ['IN', 'US'] },
     metadata: {
       userId: user.id,
       orderId: order.id,

@@ -1,6 +1,7 @@
 import { clsx, type ClassValue } from "clsx"
 import { Metadata } from "next"
 import { twMerge } from "tailwind-merge"
+import { metadata } from "../app/layout"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -43,5 +44,6 @@ export function constructMetadata({
       creator:"@surekhacoding"
     },
     icons,
+    metadataBase: new URL("https://casecobra-lilac-beta.vercel.app/")
   }
 }
